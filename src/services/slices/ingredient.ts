@@ -20,10 +20,11 @@ const initialState: TIngredientsState = {
 };
 
 const ingredientsSlice = createSlice({
-  name: 'ingredients',
+  name: 'ingredient',
   initialState,
   reducers: {},
   selectors: {
+    selectIngredientsList: (state) => state,
     selectIngredients: (state) => state.ingredients,
     selectIsLoadingIngredients: (state) => state.isLoadingIngredients
   },
@@ -44,7 +45,10 @@ const ingredientsSlice = createSlice({
   }
 });
 
-export const { selectIngredients, selectIsLoadingIngredients } =
-  ingredientsSlice.selectors;
+export const {
+  selectIngredientsList,
+  selectIngredients,
+  selectIsLoadingIngredients
+} = ingredientsSlice.selectors;
 
 export const ingredients = ingredientsSlice.reducer;

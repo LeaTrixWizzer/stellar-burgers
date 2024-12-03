@@ -51,6 +51,7 @@ const userSlice = createSlice({
   reducers: {},
   selectors: {
     selectUser: (state) => state.user,
+    selectName: (state) => state.user.name,
     selectIsAuth: (state) => state.isAuth,
     selectIsLoadingUser: (state) => state.isLoadingUser,
     selectErrorMessage: (state) => state.errorMessage
@@ -133,6 +134,7 @@ const userSlice = createSlice({
 
 export const {
   selectUser,
+  selectName,
   selectIsAuth,
   selectIsLoadingUser,
   selectErrorMessage

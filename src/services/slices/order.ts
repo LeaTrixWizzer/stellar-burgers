@@ -12,74 +12,58 @@ export const getOrders = createAsyncThunk('orders/getOrders', async () =>
 
 export const getNewOrder = createAsyncThunk(
   'orders/getNewOrder',
-  async (data: string[]) => orderBurgerApi(data)
+  orderBurgerApi
 );
 
 type TOrderState = {
-  order: TOrder[];
+  orders: TOrder[];
   orderModalData: TOrder | null;
   orderRequest: boolean;
   total: number;
   totalToday: number;
-  isOrderLoading: boolean;
   errorMessage: string | null | undefined;
 };
 
 const initialState: TOrderState = {
-  order: [],
+  orders: [],
   orderModalData: null,
   orderRequest: false,
   total: 0,
   totalToday: 0,
-  isOrderLoading: false,
   errorMessage: null
 };
 
 const orderSlice = createSlice({
-  name: 'orders',
+  name: 'order',
   initialState,
   reducers: {
-    resetOrder: (state) => {
-      state.orderModalData = null;
-      state.orderRequest = false;
-    }
+    resetOrder: (state) => initialState
   },
   selectors: {
-    selectOrder: (state) => state.order,
+    selectOrder: (state) => state.orders,
     selectOrderModalData: (state) => state.orderModalData,
     selectOrderRequest: (state) => state.orderRequest,
     selectTotal: (state) => state.total,
-    selectTotalToday: (state) => state.totalToday,
-    selectIsOrderLoading: (state) => state.isOrderLoading
+    selectTotalToday: (state) => state.totalToday
   },
   extraReducers: (builder) => {
     builder
       .addCase(getFeeds.pending, (state) => {
-        state.isOrderLoading = true;
         state.errorMessage = null;
       })
       .addCase(getFeeds.fulfilled, (state, action) => {
-        state.isOrderLoading = false;
-        state.order = action.payload.orders;
+        state.orders = action.payload.orders;
         state.total = action.payload.total;
         state.totalToday = action.payload.totalToday;
       })
       .addCase(getFeeds.rejected, (state, action) => {
-        state.isOrderLoading = false;
         state.errorMessage = action.error.message;
-        state.order = [];
+        state.orders = [];
         state.total = 0;
         state.totalToday = 0;
       })
-      .addCase(getOrders.pending, (state) => {
-        state.isOrderLoading = true;
-      })
       .addCase(getOrders.fulfilled, (state, action) => {
-        state.isOrderLoading = false;
-        state.order = action.payload;
-      })
-      .addCase(getOrders.rejected, (state) => {
-        state.isOrderLoading = false;
+        state.orders = action.payload;
       })
       .addCase(getNewOrder.pending, (state) => {
         state.orderRequest = true;
@@ -88,8 +72,8 @@ const orderSlice = createSlice({
         state.orderRequest = false;
         state.orderModalData = action.payload.order;
       })
-      .addCase(getNewOrder.rejected, (state) => {
-        state.orderRequest = false;
+      .addCase(getNewOrder.rejected, (state, action) => {
+        state.errorMessage = action.error.message;
       });
   }
 });
@@ -101,8 +85,7 @@ export const {
   selectOrderModalData,
   selectOrderRequest,
   selectTotal,
-  selectTotalToday,
-  selectIsOrderLoading
+  selectTotalToday
 } = orderSlice.selectors;
 
 export const orders = orderSlice.reducer;
