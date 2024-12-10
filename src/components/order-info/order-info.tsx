@@ -1,23 +1,27 @@
-import { FC, useMemo } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
-import { TIngredient } from '@utils-types';
+import { TIngredient, TOrder } from '@utils-types';
+import { useParams } from 'react-router-dom';
+import { useSelector } from '../../services/store';
+import { selectIngredients } from '../../services/slices/ingredients';
+import { getOrderByNumberApi } from '@api';
 
 export const OrderInfo: FC = () => {
-  /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
+  const [orderData, setOrderData] = useState<TOrder>({
+    _id: '',
     createdAt: '',
     ingredients: [],
-    _id: '',
     status: '',
     name: '',
     updatedAt: 'string',
     number: 0
-  };
+  });
 
-  const ingredients: TIngredient[] = [];
+  const id = Number(useParams().number);
 
-  /* Готовим данные для отображения */
+  const ingredients: TIngredient[] = useSelector(selectIngredients);
+
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
 
@@ -31,6 +35,7 @@ export const OrderInfo: FC = () => {
       (acc: TIngredientsWithCount, item) => {
         if (!acc[item]) {
           const ingredient = ingredients.find((ing) => ing._id === item);
+
           if (ingredient) {
             acc[item] = {
               ...ingredient,
@@ -58,6 +63,12 @@ export const OrderInfo: FC = () => {
       total
     };
   }, [orderData, ingredients]);
+
+  useEffect(() => {
+    getOrderByNumberApi(Number(id)).then((data) => {
+      setOrderData(data.orders[0]);
+    });
+  }, []);
 
   if (!orderInfo) {
     return <Preloader />;
